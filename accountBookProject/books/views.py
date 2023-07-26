@@ -2,38 +2,57 @@ from django.shortcuts import render
 from .models import AccountBook, Type1, Type2, Type3
 from .serializers import BookSerializer, Type1_Serializer, Type2_Serializer, Type3_Serializer
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from django.db.models import Sum
 
-class BookViewSet(ModelViewSet) :
+class BookViewSet(ModelViewSet):
     queryset = AccountBook.objects.all()
     serializer_class = BookSerializer
-    
-    # def get_queryset(self, request):
-    #     type_name = request['type_name'] # type_name을 받아옴 -> type을 고르면 
-    #     if type_name == None :
-    #         type_name = "Type1"
-    #     return self.queryset.filter(type_name=type_name)
-    
 
-class Type1_ViewSet(ModelViewSet) :
-    queryset = Type1.objects.all()
-    serializer_class = Type1_Serializer
-    
-    def get_queryset(self, **kwargs):
-        id = self.kwargs['book_id']
-        return self.queryset.filter(accountBook=id)
+class TypeViewSet(ModelViewSet):
 
-class Type2_ViewSet(ModelViewSet) :
-    queryset = Type2.objects.all()
-    serializer_class = Type2_Serializer
-    
-    def get_queryset(self, **kwargs):
-        id = self.kwargs['book_id']
-        return self.queryset.filter(accountBook=id)
+    def get_object(self):
+        # 오버라이드하여 해당 book_id의 AccountBook을 반환
+        book_id = self.kwargs.get('book_id')
+        return get_object_or_404(AccountBook, id=book_id)
 
-class Type3_ViewSet(ModelViewSet) :
-    queryset = Type3.objects.all()
-    serializer_class = Type3_Serializer
-    
-    def get_queryset(self, **kwargs):
-        id = self.kwargs['book_id']
-        return self.queryset.filter(accountBook=id)
+    def get_queryset(self):
+        account_book = self.get_object()
+        self.calculate_total() 
+
+        type_name = account_book.type_name
+        if type_name == 'Type1':
+            return account_book.type1_set.all()
+        elif type_name == 'Type2':
+            return account_book.type2_set.all()
+        elif type_name == 'Type3':
+            return account_book.type3_set.all()
+        else:
+            return Type1.objects.none() 
+        
+    def calculate_total(self):
+        account_book = self.get_object()
+        if account_book.type_name == 'Type1':
+            total_money = account_book.type1_set.aggregate(total=Sum('money'))['total']
+        elif account_book.type_name == 'Type2':
+            total_money = account_book.type2_set.aggregate(total=Sum('money'))['total']
+        elif account_book.type_name == 'Type3':
+            total_money = account_book.type3_set.aggregate(total=Sum('money'))['total']
+        else:
+            total_money = 0
+
+        account_book.total = total_money if total_money is not None else 0
+        account_book.save()
+
+    def get_serializer_class(self):
+        account_book = self.get_object()
+        type_name = account_book.type_name
+        if type_name == 'Type1':
+            return Type1_Serializer
+        elif type_name == 'Type2':
+            return Type2_Serializer
+        elif type_name == 'Type3':
+            return Type3_Serializer
+        else:
+            return Type1_Serializer 

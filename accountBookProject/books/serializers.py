@@ -14,9 +14,9 @@ class Type1_Serializer(ModelSerializer) :
 class Type2_Serializer(ModelSerializer) :
     class Meta:
         model = Type2
-        fields = ['id','accountBook', 'money']
+        fields = ['id','accountBook', 'category', 'memo', 'money']
 
 class Type3_Serializer(ModelSerializer) :
     class Meta:
         model = Type3
-        fields = ['id','accountBook', 'money']
+        fields = ['id','accountBook', 'money', 'content', 'image']
