@@ -39,8 +39,23 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'books', 
     'accounts', 
+    #DRF
     'rest_framework',
+    'rest_framework.authtoken',
+
+    #rest_auth (로그인)
+    'dj_rest_auth',
+
+    #allauth (회원가입)
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'rest_auth.registration',
 ]
+SITE_ID = 1 #django sites app setting
+
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -124,3 +139,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'accounts.User' #account.User
+
+REST_FRAMEWORK = {
+	'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework.authentication.TokenAuthentication', 
+    ],
+}
