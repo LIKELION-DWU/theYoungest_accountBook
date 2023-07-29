@@ -1,4 +1,4 @@
-# theYoungest_accountBook
+# 가계부 프로젝트 (동덕멋사_막내팀)
 
 ### 📍 figma
 https://www.figma.com/file/nj7ATEwN9qqDZPRq3Zlt3p/%EB%B0%A9%ED%98%9C%EC%A7%84?type=design&node-id=101-264&mode=design&t=vkD8oJyZ6Fl3hQ7H-0
