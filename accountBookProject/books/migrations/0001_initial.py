@@ -17,128 +17,43 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="AccountBook",
             fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("title", models.CharField(max_length=128)),
-                ("date", models.DateField(verbose_name="날짜")),
-                ("total", models.IntegerField()),
-                (
-                    "writer",
-                    models.ForeignKey(
-                        null=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
+                ('title', models.CharField(max_length=128)),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('writer', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('date', models.DateField(verbose_name='날짜')),
+                ('type_name', models.TextField(default='Type1', verbose_name='type명')),
+                ('total', models.IntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
             name="Type3",
             fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("content", models.TextField()),
-                (
-                    "image",
-                    models.ImageField(
-                        blank=True,
-                        null=True,
-                        upload_to="post-image",
-                        verbose_name="이미지",
-                    ),
-                ),
-                ("money", models.IntegerField()),
-                (
-                    "accountBook",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="books.accountbook",
-                    ),
-                ),
-                (
-                    "writer",
-                    models.ForeignKey(
-                        null=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('content', models.TextField()),
+                ('image', models.ImageField(blank=True, null=True, upload_to='post-image', verbose_name='이미지')),
+                ('money', models.IntegerField(default=0)),
+                ('accountBook', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='type3_set', to='books.accountbook')),
+                ('writer', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
             name="Type2",
             fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("category", models.TextField()),
-                ("memo", models.TextField()),
-                ("money", models.IntegerField()),
-                (
-                    "accountBook",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="books.accountbook",
-                    ),
-                ),
-                (
-                    "writer",
-                    models.ForeignKey(
-                        null=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('category', models.TextField()),
+                ('memo', models.TextField()),
+                ('money', models.IntegerField(default=0)),
+                ('accountBook', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='type2_set', to='books.accountbook')),
+                ('writer', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
             name="Type1",
             fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("money", models.IntegerField()),
-                (
-                    "accountBook",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="books.accountbook",
-                    ),
-                ),
-                (
-                    "writer",
-                    models.ForeignKey(
-                        null=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('money', models.IntegerField(default=0)),
+                ('accountBook', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='type1_set', to='books.accountbook')),
+                ('writer', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]
