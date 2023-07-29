@@ -1,5 +1,4 @@
 from django.db import models
-#from django.contrib.auth.models import User
 from accounts.models import User
 
 # main account book
@@ -13,7 +12,7 @@ class AccountBook(models.Model):
     def __str__(self):
         return str(self.date)
 
-
+# Type1
 class Type1(models.Model):
     accountBook = models.ForeignKey(AccountBook, on_delete=models.CASCADE, related_name='type1_set')
     money = models.IntegerField(default=0)
@@ -22,7 +21,7 @@ class Type1(models.Model):
     def __str__(self):
         return str(self.money)
 
-
+# Type2
 class Type2(models.Model):
     accountBook = models.ForeignKey(AccountBook, on_delete=models.CASCADE, related_name='type2_set')
     category = models.TextField()
@@ -33,7 +32,7 @@ class Type2(models.Model):
     def __str__(self):
         return str(self.money)
 
-
+# Type3
 class Type3(models.Model):
     accountBook = models.ForeignKey(AccountBook, on_delete=models.CASCADE, related_name='type3_set')
     content = models.TextField()
