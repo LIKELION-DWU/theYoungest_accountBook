@@ -5,7 +5,7 @@ from .views import BookViewSet, TypeViewSet
 book_router = SimpleRouter(trailing_slash=False)
 book_router.register('books', BookViewSet, basename='books')
 
-type_router = SimpleRouter(trailing_slash=True)
+type_router = SimpleRouter(trailing_slash=False)
 type_router.register('types', TypeViewSet, basename='types')
 
 urlpatterns = [

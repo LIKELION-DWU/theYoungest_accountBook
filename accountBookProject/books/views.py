@@ -5,17 +5,46 @@ from .models import AccountBook, Type1, Type2, Type3
 from .serializers import BookSerializer, Type1_Serializer, Type2_Serializer, Type3_Serializer
 from rest_framework.viewsets import ModelViewSet
 from django.db.models import Sum
+from rest_framework import serializers
+from .permissions import IsAuthenticatedOrReadOnly, IsWriterOrReadonly
 
 class BookViewSet(ModelViewSet):
     queryset = AccountBook.objects.all()
     serializer_class = BookSerializer
+    # 허가 권한 
+    permission_classes = [
+        IsWriterOrReadonly, # 작성자에 한해 수정/삭제 권한
+    ]
+    
+    def perform_create(self, serializer):
+        serializer.save(writer = self.request.user)
+    
+    # type_name 변경 시에 -> 400 에러 발생
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        type_name = instance.type_name
 
-class TypeViewSet(ModelViewSet):
+        partial = kwargs.pop('partial', False)
+        if not partial:
+            request.data.pop('type_name', None)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if type_name != serializer.instance.type_name:
+            return Response({"error": "Updating 'type_name' is not allowed."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.data)
+
+class TypeViewSet(ModelViewSet):    
+    # 해당하는 accountbook 받아와요
     def get_account_book(self):
         book_id = self.kwargs.get('book_id')
         account_book = get_object_or_404(AccountBook, id=book_id)
         return account_book
 
+    # type 부분입니다 해당하는 types 받아와요
     def get_object(self):
         type_id = self.kwargs.get('pk')
         account_book = self.get_account_book()
@@ -30,6 +59,7 @@ class TypeViewSet(ModelViewSet):
 
         return type_model
 
+    # total 계산하는 함수 
     def calculate_total(self):
         account_book = self.get_account_book()
         if account_book.type_name == 'Type1':
@@ -42,6 +72,7 @@ class TypeViewSet(ModelViewSet):
         account_book.total = total_money if total_money is not None else 0
         account_book.save()
 
+    # type_name에 따라서 serializer 불러와요
     def get_serializer_class(self):
         account_book = self.get_account_book()
         type_name = account_book.type_name
@@ -54,9 +85,10 @@ class TypeViewSet(ModelViewSet):
         else:
             return Type1_Serializer 
 
+    # 타입 목록 전체 가져오기
     def get_queryset(self):
         account_book = self.get_account_book()
-        self.calculate_total() 
+        self.calculate_total() # total 계산
 
         type_name = account_book.type_name
         if type_name == 'Type1':
@@ -68,12 +100,46 @@ class TypeViewSet(ModelViewSet):
         else:
             return Type1.objects.none() 
 
+    # override - 목록 하나 추가 + accountBook을 미리 저장해둬야하는 부분 
+    def create(self, request, *args, **kwargs):
+        account_book_id = kwargs.get('book_id')
+        account_book = get_object_or_404(AccountBook, id=account_book_id)
+
+        # AccountBook의 writer 랑 type 작성하고 있는 writer 가 같아야지만 create 가능함
+        if account_book.writer != self.request.user:
+            return Response({"error": "Permission denied. You can only create for your own account book."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(writer=self.request.user, accountBook=account_book) 
+        self.calculate_total()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    # override - 목록 하나 가져오기 + get_object에서 받아와야함 
     def retrieve(self, request, *args, **kwargs):
+        account_book_id = kwargs.get('book_id')
+        account_book = get_object_or_404(AccountBook, id=account_book_id)
+
+        # AccountBook의 writer 랑 type 작성하고 있는 writer 가 같아야지만 retrieve 가능함
+        if account_book.writer != self.request.user:
+            return Response({"error": "Permission denied. You can only retrieve for your own account book."},
+                            status=status.HTTP_403_FORBIDDEN)
+        
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
+    # override - 목록 하나 수정 
     def update(self, request, *args, **kwargs):
+        account_book_id = kwargs.get('book_id')
+        account_book = get_object_or_404(AccountBook, id=account_book_id)
+
+        # AccountBook의 writer 랑 type 작성하고 있는 writer 가 같아야지만 update 가능함
+        if account_book.writer != self.request.user:
+            return Response({"error": "Permission denied. You can only update for your own account book."},
+                            status=status.HTTP_403_FORBIDDEN)
+        
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -81,7 +147,16 @@ class TypeViewSet(ModelViewSet):
         self.calculate_total()
         return Response(serializer.data)
 
+    # override - 목록 하나 삭제
     def destroy(self, request, *args, **kwargs):
+        account_book_id = kwargs.get('book_id')
+        account_book = get_object_or_404(AccountBook, id=account_book_id)
+
+        # AccountBook의 writer 랑 type 작성하고 있는 writer 가 같아야지만 delete 가능함
+        if account_book.writer != self.request.user:
+            return Response({"error": "Permission denied. You can only delete for your own account book."},
+                            status=status.HTTP_403_FORBIDDEN)
+        
         instance = self.get_object()
         self.perform_destroy(instance)
         self.calculate_total()
