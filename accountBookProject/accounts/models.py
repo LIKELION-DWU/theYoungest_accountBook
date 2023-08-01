@@ -40,19 +40,19 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     id= models.CharField(primary_key=True, default='', max_length=100, null=False, blank=False, unique=True)
-    phone = models.CharField(default='', max_length=100, null=False, blank=False, unique=True)
-    birth = models.CharField(default='', max_length=100, null=False, blank=False, unique=True)
+    phone = models.CharField(default='', max_length=100, null=False, blank=False)
+    birth = models.CharField(default='', max_length=100, null=False, blank=False)
     nickname = models.CharField(default='', max_length=100, null=False, blank=False, unique=True)
     name = models.CharField(default='', max_length=100, null=False, blank=False)
 
     # User 모델의 필수 field
-    is_active = models.BooleanField(default=True) #system만 1해두고 저장함    
+    is_active = models.BooleanField(default=True)   
     is_admin = models.BooleanField(default=True)
 
     # 헬퍼 클래스 사용
     objects = UserManager()
 
-    # 사용자의 username field는 nickname으로 설정
+    # 사용자의 username field는 id로 설정
     USERNAME_FIELD = 'id'
     # 필수로 작성해야하는 field
     REQUIRED_FIELDS = ['phone', 'name', 'birth', 'nickname']
