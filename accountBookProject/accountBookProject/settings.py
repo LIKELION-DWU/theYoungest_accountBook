@@ -37,9 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'books', 
     'accounts', 
-     #DRF
+    
+    #DRF
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'rest_auth.registration',
 ]
+
 SITE_ID = 1 #django sites app setting
 
 MIDDLEWARE = [
