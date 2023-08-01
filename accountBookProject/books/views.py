@@ -6,7 +6,7 @@ from .serializers import BookSerializer, Type1_Serializer, Type2_Serializer, Typ
 from rest_framework.viewsets import ModelViewSet
 from django.db.models import Sum
 from rest_framework import serializers
-from .permissions import IsAuthenticatedOrReadOnly, IsWriterOrReadonly
+from .permissions import IsAuthenticatedOrReadOnly, IsWriterOrReadonly, IsAuthenticated
 
 class BookViewSet(ModelViewSet):
     queryset = AccountBook.objects.all()
@@ -38,6 +38,7 @@ class BookViewSet(ModelViewSet):
         return Response(serializer.data)
 
 class TypeViewSet(ModelViewSet):    
+    permission_classes = [IsAuthenticated]
     # 해당하는 accountbook 받아와요
     def get_account_book(self):
         book_id = self.kwargs.get('book_id')

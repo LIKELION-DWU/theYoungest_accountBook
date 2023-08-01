@@ -22,3 +22,6 @@ class IsAuthenticatedOrReadOnly(permissions.BasePermission):
             request.user and
             request.user.is_authenticated
         )
+class IsAuthenticated(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated)
