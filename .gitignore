@@ -1,1 +1,3 @@
 myvenv/
+mvenv/
+db.sqlite3/

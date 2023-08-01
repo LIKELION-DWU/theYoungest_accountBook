@@ -11,5 +11,5 @@ class UserCreate(generics.CreateAPIView):
     serializer_class = UserSerializer
 
 
-def login(request):
-    return render(request, 'profile.html')
+# def login(request):
+#     return render(request, 'profile.html')
