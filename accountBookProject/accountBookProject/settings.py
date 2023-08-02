@@ -53,11 +53,25 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'rest_auth.registration',
+
+    'corsheaders',
+]
+CORS_ORIGIN_ALLOW_ALL = True # 모든 호스트 허용
+CORS_ALLOW_METHODS = [
+'DELETE',
+'GET',
+'OPTIONS',
+'PATCH',
+'POST',
+'PUT',
 ]
 
 SITE_ID = 1 #django sites app setting
 
 MIDDLEWARE = [
+    #가장 높은 위치에 추가
+    'corsheaders.middleware.CorsMiddleware', 
+    'django.middleware.common.CommonMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -150,4 +164,15 @@ REST_FRAMEWORK = {
 	'DEFAULT_AUTHENTICATION_CLASSES': [
     'rest_framework.authentication.TokenAuthentication', 
     ],
+
+    # CamelCaseJSON 관련 설정
+    'DEFAULT_RENDERER_CLASSES': (
+    'djangorestframework_camel_case.render.CamelCaseJSONRenderer', 
+    'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+    'djangorestframework_camel_case.parser.CamelCaseFormParser', 
+    'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
+    'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+    ),
 }
