@@ -7,6 +7,7 @@ from rest_framework.viewsets import ModelViewSet
 from django.db.models import Sum
 from rest_framework import serializers
 from .permissions import IsAuthenticatedOrReadOnly, IsWriterOrReadonly, IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 
 class BookViewSet(ModelViewSet):
     queryset = AccountBook.objects.all()
@@ -15,6 +16,11 @@ class BookViewSet(ModelViewSet):
     permission_classes = [
         IsWriterOrReadonly, # 작성자에 한해 수정/삭제 권한
     ]
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        return queryset.filter(writer=user)
     
     def perform_create(self, serializer):
         serializer.save(writer = self.request.user)
@@ -90,6 +96,11 @@ class TypeViewSet(ModelViewSet):
     def get_queryset(self):
         account_book = self.get_account_book()
         self.calculate_total() # total 계산
+        user = self.request.user
+
+        # 작성자가 아닌 경우 에러 발생
+        if account_book.writer != user:
+            raise PermissionDenied("You can only access your own account book types.")
 
         type_name = account_book.type_name
         if type_name == 'Type1':
